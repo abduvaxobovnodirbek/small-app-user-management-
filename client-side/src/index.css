@@ -6,3 +6,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.ant-switch{
+  background-color:rgb(132, 135, 141);
+}

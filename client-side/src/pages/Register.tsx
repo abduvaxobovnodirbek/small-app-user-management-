@@ -1,6 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Form, Formik, Field } from "formik";
 import * as Yup from "yup";
+import { FaUser } from "react-icons/fa";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { register } from "../store/reducers/authSlice";
+import {
+  successNotification,
+  errorNotification,
+} from "../helpers/notification";
+import { Spin } from "antd";
 
 let validationSchema = Yup.object({
   name: Yup.string().required("*name field is required"),
@@ -12,15 +20,29 @@ type FormValues = Yup.InferType<typeof validationSchema>;
 
 const Register: React.FC = () => {
   const initialValues: FormValues = { name: "", email: "", password: "" };
+  let loading = useAppSelector(state=>state.auth.loading)
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = (data: FormValues, { resetForm }: any) => {
-    console.log(data);
-    resetForm({});
+    dispatch(register(data))
+      .unwrap()
+      .then(() => {
+        successNotification("bottomRight", "successfully registered");
+        resetForm({});
+        return navigate("/");
+      })
+      .catch((err) => {
+        errorNotification(
+          "bottomRight",
+          err?.response?.data?.error || "internal error"
+        );
+      });
   };
 
   return (
     <>
-      <div className="flex items-center align-middle h-5/6">
+      <div className="top-40 relative">
         <div className="container max-w-screen-sm center mx-auto">
           <Formik
             initialValues={initialValues}
@@ -29,9 +51,10 @@ const Register: React.FC = () => {
             enableReinitialize
           >
             {({ errors, touched }: any) => (
+              <Spin spinning={loading}>
               <Form className="bg-gray-600 shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                <h1 className="text-xl font-bold leading-tight tracking-tight text-white md:text-2xl mb-4 text-center">
-                  Register now
+                <h1 className="text-xl font-bold leading-tight tracking-tight text-white md:text-2xl mb-4 text-center flex w-100  items-center justify-center">
+                  <FaUser /> <span className="ml-4">Register now</span>
                 </h1>
                 <div className="mb-4">
                   <label
@@ -109,12 +132,13 @@ const Register: React.FC = () => {
                   </button>
                   <Link
                     className="inline-block align-baseline font-bold text-sm text-gray-300 hover:text-white"
-                    to="/"
+                    to="/login"
                   >
                     Already have an Account?
                   </Link>
                 </div>
               </Form>
+              </Spin>
             )}
           </Formik>
           <p className="text-center text-gray-500 text-xs">

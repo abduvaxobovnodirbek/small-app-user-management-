@@ -1,81 +1,98 @@
-import React, { useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { Table as TableBlock, ConfigProvider } from "antd";
+import { format } from "date-fns";
+import { DeleteOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { TableRowSelection } from "antd/es/table/interface";
+import { deleteUser, editUser, getUsers } from "../store/reducers/userSlice";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import Checkbox from "./Checkbox";
+import {
+  errorNotification,
+  successNotification,
+} from "../helpers/notification";
 
-interface DataType {
-  key: React.Key;
-  name: string;
-  age: number;
-  address: string;
-}
+const Table: FC = () => {
+  const dispatch = useAppDispatch();
+  const usersList = useAppSelector((state) => state.users.list);
+  const loading = useAppSelector((state) => state.users.loading);
 
-const columns: ColumnsType<DataType> = [
-  {
-    title: "Name",
-    dataIndex: "name",
-  },
-  {
-    title: "Age",
-    dataIndex: "age",
-  },
-  {
-    title: "Address",
-    dataIndex: "address",
-  },
-];
+  useEffect(() => {
+    dispatch(getUsers());
+  }, [dispatch]);
 
-const data: DataType[] = [];
-for (let i = 0; i < 46; i++) {
-  data.push({
-    key: i,
-    name: `Edward King ${i}`,
-    age: 32,
-    address: `London, Park Lane no. ${i}`,
-  });
-}
+  const handleStatus = (e: any): any => {
+    dispatch(editUser({ ...e, status: !e.status }))
+      .unwrap()
+      .then(() => {
+        successNotification("bottomRight", "user status is changed");
+      })
+      .catch((err) => {
+        errorNotification(
+          "bottomRight",
+          err?.response?.data?.error || "internal error"
+        );
+      });
+  };
 
-const Table: React.FC = () => {
+  const columns: ColumnsType = [
+    {
+      title: "Name",
+      dataIndex: "name",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      render: (text, record) => (
+        <Checkbox handleChange={() => handleStatus(record)} active={text} />
+      ),
+    },
+    {
+      title: "Registered Time",
+      dataIndex: "createdAt",
+      render: (text) => format(new Date(text), "MMMM do. yyyy"),
+    },
+  ];
+
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
-  const rowSelection: TableRowSelection<DataType> = {
+  const rowSelection: TableRowSelection<any> = {
     selectedRowKeys,
     onChange: onSelectChange,
     selections: [
-      TableBlock.SELECTION_ALL,
-      {
-        key: "odd",
-        text: "Select Odd Row",
-        onSelect: (changableRowKeys) => {
-          let newSelectedRowKeys = [];
-          newSelectedRowKeys = changableRowKeys.filter((_, index) => {
-            if (index % 2 !== 0) {
-              return false;
-            }
-            return true;
-          });
-          setSelectedRowKeys(newSelectedRowKeys);
-        },
-      },
-      {
-        key: "even",
-        text: "Select Even Row",
-        onSelect: (changableRowKeys) => {
-          let newSelectedRowKeys = [];
-          newSelectedRowKeys = changableRowKeys.filter((_, index) => {
-            if (index % 2 !== 0) {
-              return true;
-            }
-            return false;
-          });
-          setSelectedRowKeys(newSelectedRowKeys);
-        },
-      },
+      selectedRowKeys.length
+        ? {
+            key: "",
+            text: <DeleteOutlined style={{ color: "red" }} />,
+            onSelect: () => {
+              dispatch(
+                deleteUser({ ids: selectedRowKeys } as { ids: string[] })
+              )
+                .unwrap()
+                .then(() => {
+                  successNotification(
+                    "bottomRight",
+                    "user has successfully been deleted"
+                  );
+                  dispatch(getUsers());
+                  setSelectedRowKeys([]);
+                })
+                .catch((err) => {
+                  errorNotification(
+                    "bottomRight",
+                    err?.response?.data?.error || "internal error"
+                  );
+                });
+            },
+          }
+        : "SELECT_ALL",
     ],
   };
 
@@ -83,15 +100,17 @@ const Table: React.FC = () => {
     <ConfigProvider
       theme={{
         token: {
-          colorBgBase:"#c0c7d5",
-          colorPrimaryBgHover:"#e6f4ff"
+          colorBgBase: "#c0c7d5",
+          colorPrimaryBgHover: "#e6f4ff",
         },
       }}
     >
       <TableBlock
         rowSelection={rowSelection}
         columns={columns}
-        dataSource={data}
+        dataSource={usersList}
+        rowKey="_id"
+        loading={loading}
       />
     </ConfigProvider>
   );

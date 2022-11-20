@@ -23,9 +23,9 @@ exports.register = asyncHandler(async (req, res, next) => {
   const user = await User.create({ name, email, password });
 
   //Create token
-  const token = user.GenerateJWT();
+  const accessToken = user.GenerateJWT();
 
-  res.status(200).json({ success: true, token });
+  res.status(200).json({ success: true, accessToken });
 });
 
 // description  Login User
@@ -55,9 +55,9 @@ exports.login = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`User account is blocked`, 400));
   }
 
-  const token = user.GenerateJWT();
+  const accessToken = user.GenerateJWT();
 
-  res.status(201).json({ success: true, token });
+  res.status(201).json({ success: true, accessToken });
 });
 
 //description   Update Personal Details
@@ -97,7 +97,7 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
   user.password = req.body.newPassword;
   await user.save();
 
-  const token = user.GenerateJWT();
+  const accessToken = user.GenerateJWT();
 
-  res.status(200).json({ success: true, token });
+  res.status(200).json({ success: true, accessToken });
 });

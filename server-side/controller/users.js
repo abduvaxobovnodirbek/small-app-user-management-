@@ -55,13 +55,13 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 //route   GET /api/v1/users/:id
 //access  Private
 exports.deleteUser = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
-  if (!user) {
-    return next(
-      new ErrorResponse(`user not found with id of ${req.params.id}`, 404)
-    );
-  }
-
-  await user.remove();
-  res.status(204).json({ success: true });
+  const ids = req.params.id.split(',')
+  User.deleteMany({_id: { $in: ids}}, function(err) {
+    if(err){
+      next(
+        new ErrorResponse(`User not found, 404`)
+      )
+    }
+  })
+  res.status(204).json({ success: true, data: 'user has successfully been deleted'});
 });

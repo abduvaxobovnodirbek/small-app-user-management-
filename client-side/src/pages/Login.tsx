@@ -1,6 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Form, Formik, Field } from "formik";
 import * as Yup from "yup";
+import { FaUser } from "react-icons/fa";
+import { login } from "../store/reducers/authSlice";
+import {  Spin } from 'antd';
+import {
+  errorNotification,
+  successNotification,
+} from "../helpers/notification";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
 
 let validationSchema = Yup.object({
   email: Yup.string().required("*email field is required"),
@@ -11,15 +19,32 @@ type FormValues = Yup.InferType<typeof validationSchema>;
 
 const Login: React.FC = () => {
   const initialValues: FormValues = { email: "", password: "" };
+  const loading = useAppSelector(state=>state.auth.loading)
+
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = (data: FormValues, { resetForm }: any) => {
-    console.log(data);
-    resetForm({});
+    dispatch(login(data))
+      .unwrap()
+      .then(() => {
+        successNotification("bottomRight", "successfully Logged In");
+        resetForm({});
+        return navigate("/");
+      })
+      .catch((err) => {
+        errorNotification(
+          "bottomRight",
+          err?.response?.data?.error || "internal error"
+        );
+      });
   };
 
+  
+
   return (
-    <>
-      <div className="flex items-center align-middle h-5/6">
+    <div className="top-40 relative">
+      <>
         <div className="container max-w-screen-sm center mx-auto">
           <Formik
             initialValues={initialValues}
@@ -28,9 +53,10 @@ const Login: React.FC = () => {
             enableReinitialize
           >
             {({ errors, touched }: any) => (
+              <Spin spinning={loading}>
               <Form className="bg-gray-600 shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                <h1 className="text-xl font-bold leading-tight tracking-tight text-white md:text-2xl mb-4 text-center">
-                  Sign In to your account
+                <h1 className="text-xl font-bold leading-tight tracking-tight text-white md:text-2xl mb-4 text-center flex w-100  items-center justify-center">
+                  <FaUser /> <span className="ml-4">Sign in </span>
                 </h1>
 
                 <div className="mb-4">
@@ -92,14 +118,15 @@ const Login: React.FC = () => {
                   </Link>
                 </div>
               </Form>
+              </Spin>
             )}
           </Formik>
           <p className="text-center text-gray-500 text-xs">
             &copy;2022 Nodirbek Intern. All rights reserved.
           </p>
         </div>
-      </div>
-    </>
+      </>
+    </div>
   );
 };
 

@@ -1,6 +1,11 @@
-import { NavLink } from "react-router-dom";
-import { FaSignInAlt, FaUser } from "react-icons/fa";
+import { NavLink, useLocation } from "react-router-dom";
+import { FaSignInAlt, FaUser, FaSignOutAlt } from "react-icons/fa";
+import Cookie from "universal-cookie";
+const cookie = new Cookie();
+
 const Header = () => {
+  let isAuth = cookie.get("accessToken");
+  useLocation();
   return (
     <nav className="flex justify-between items-center h-[70px] px-5 shadow-md bg-slate-700 text-white">
       <span
@@ -10,28 +15,45 @@ const Header = () => {
         Task 4
       </span>
       <span className="flex">
-        <NavLink
-          to={"/"}
-          className={({ isActive }) =>
-            isActive
-              ? "text-white mr-2 font-bold flex items-center"
-              : "text-stone-300 mr-2 flex items-center"
-          }
-        >
-          <FaSignInAlt className="mr-2" />
-          Login
-        </NavLink>
-        <NavLink
-          to={"/register"}
-          className={({ isActive }) =>
-            isActive
-              ? "text-white font-bold mr-2 flex items-center"
-              : "text-stone-300 mr-2 flex items-center"
-          }
-        >
-          <FaUser className="mr-2" />
-          Register
-        </NavLink>
+        {!isAuth ? (
+          <>
+            <NavLink
+              to={"/login"}
+              className={({ isActive }) =>
+                isActive
+                  ? "text-white mr-2 font-bold flex items-center"
+                  : "text-stone-300 mr-2 flex items-center"
+              }
+            >
+              <FaSignInAlt className="mr-2" />
+              Login
+            </NavLink>
+            <NavLink
+              to={"/register"}
+              className={({ isActive }) =>
+                isActive
+                  ? "text-white font-bold mr-2 flex items-center"
+                  : "text-stone-300 mr-2 flex items-center"
+              }
+            >
+              <FaUser className="mr-2" />
+              Register
+            </NavLink>
+          </>
+        ) : (
+          <NavLink
+            to={"/login"}
+            onClick={() => cookie.remove("accessToken")}
+            className={({ isActive }) =>
+              isActive
+                ? "text-white font-bold mr-2 flex items-center"
+                : "text-stone-300 mr-2 flex items-center"
+            }
+          >
+            <FaSignOutAlt className="mr-2" />
+            Logout
+          </NavLink>
+        )}
       </span>
     </nav>
   );
