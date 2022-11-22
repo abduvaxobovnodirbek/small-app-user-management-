@@ -12,10 +12,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   const existedUser = await User.findOne({ email });
   if (existedUser) {
     return next(
-      new ErrorResponse(
-        `The user with '${email}' already exists in database`,
-        400
-      )
+      new ErrorResponse(`The user with '${email}' already exists`, 400)
     );
   }
 
@@ -40,9 +37,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email }).select("+password");
 
   if (!user) {
-    return next(
-      new ErrorResponse(`The user with '${email}' not  exists in database`, 400)
-    );
+    return next(new ErrorResponse(`The user with '${email}' not  exists`, 400));
   }
 
   const isMatch = await user.matchPassword(password);
@@ -55,10 +50,10 @@ exports.login = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`User account is blocked`, 400));
   }
 
-   User.setNewLoginTime(user.id, (err, data) => {
+  User.setNewLoginTime(user.id, (err, data) => {
     if (err) {
       return next(new ErrorResponse(`Something went wrong`, 500));
-    } 
+    }
   });
 
   const accessToken = user.GenerateJWT();

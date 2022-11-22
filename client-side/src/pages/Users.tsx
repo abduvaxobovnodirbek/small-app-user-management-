@@ -23,16 +23,13 @@ const Users = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState<UserData[]>([]);
   const [editingKey, setEditingKey] = useState("");
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   useEffect(() => {
     dispatch(getUsers())
       .unwrap()
       .catch((err) => {
-        errorNotification(
-          "bottomRight",
-          err?.response?.data?.error || "internal error"
-        );
-        if (err?.response?.data?.blocked) {
+        if (err?.response?.data?.blocked || err?.response?.data?.noAccess) {
           cookie.remove("accessToken");
           navigate("/login");
         }
@@ -82,7 +79,7 @@ const Users = () => {
             "user has successfully been updated"
           );
           dispatch(getUsers());
-          // setSelectedRowKeys([]);
+          setSelectedRowKeys([]);
         })
         .catch((err) => {
           errorNotification(
@@ -125,8 +122,15 @@ const Users = () => {
           "bottomRight",
           "user has successfully been deleted"
         );
-        dispatch(getUsers());
-        // setSelectedRowKeys([]);
+        dispatch(getUsers())
+          .unwrap()
+          .catch((err) => {
+            if (err?.response?.data?.noAccess) {
+              cookie.remove("accessToken");
+              navigate("/login");
+            }
+          });
+        setSelectedRowKeys([]);
       })
       .catch((err) => {
         errorNotification(
@@ -153,6 +157,8 @@ const Users = () => {
         save={save}
         handleStatus={handleStatus}
         handleDelete={handleDelete}
+        selectedRowKeys={selectedRowKeys}
+        setSelectedRowKeys={setSelectedRowKeys}
       />
     </div>
   );

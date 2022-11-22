@@ -6,8 +6,7 @@ const User = require("../model/User");
 //route        GET /api/v1/users
 //access       Private
 exports.getAllUsers = asyncHandler(async (req, res, next) => {
-  
-  const users = await User.find().sort({'createdAt': -1})
+  const users = await User.find().sort({ createdAt: -1 });
 
   res.status(200).json({ success: true, count: users.length, data: users });
 });
@@ -21,10 +20,7 @@ exports.createUser = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email });
   if (user) {
     return next(
-      new ErrorResponse(
-        `user with id ${req.user.id} is exists in database`,
-        403
-      )
+      new ErrorResponse(`user with id ${req.user.id} is exists`, 403)
     );
   }
   const new_user = await User.create({ name, email, password });
@@ -51,13 +47,13 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 //route   GET /api/v1/users/:id
 //access  Private
 exports.deleteUser = asyncHandler(async (req, res, next) => {
-  const ids = req.params.id.split(',')
-  User.deleteMany({_id: { $in: ids}}, function(err) {
-    if(err){
-      next(
-        new ErrorResponse(`User not found, 404`)
-      )
+  const ids = req.params.id.split(",");
+  User.deleteMany({ _id: { $in: ids } }, function (err) {
+    if (err) {
+      next(new ErrorResponse(`User not found, 404`));
     }
-  })
-  res.status(204).json({ success: true, data: 'user has successfully been deleted'});
+  });
+  res
+    .status(204)
+    .json({ success: true, data: "user has successfully been deleted" });
 });
