@@ -11,7 +11,8 @@ export  type User = {
   name: string;
   email: string;
   status:boolean;
-  createdAt:Date
+  createdAt:Date;
+  lastLoginAt:Date
 };
 
 type UserState = {

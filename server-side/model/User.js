@@ -26,13 +26,19 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
   createdAt: {
     type: Date,
     default: Date.now,
   },
+  lastLoginAt: {
+    type: Date,
+    default: Date.now
+},
 });
+
+UserSchema.statics.setNewLoginTime = function login(id, callback) {
+  return this.findByIdAndUpdate(id,{'$set' : { 'lastLoginAt' : Date.now()} }, { new : true }, callback);
+};
 
 //hash the password using bcrypt before saving
 UserSchema.pre("save", async function (next) {

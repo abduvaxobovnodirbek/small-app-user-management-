@@ -6,12 +6,8 @@ const User = require("../model/User");
 //route        GET /api/v1/users
 //access       Private
 exports.getAllUsers = asyncHandler(async (req, res, next) => {
-  //pagination
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const startIndex = (page - 1) * limit;
-
-  const users = await User.find().skip(startIndex).limit(limit);
+  
+  const users = await User.find().sort({'createdAt': -1})
 
   res.status(200).json({ success: true, count: users.length, data: users });
 });

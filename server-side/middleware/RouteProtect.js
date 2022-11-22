@@ -33,5 +33,9 @@ exports.isActiveUser = asyncHandler((req, res, next) => {
   if (req.user.status) {
     return next();
   }
-  return next(new ErrorResponse("Current User is blocked", 403));
+  return res.status(403).json({
+    success: false,
+    error: "Current user is blocked",
+    blocked: true,
+  });
 });

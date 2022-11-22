@@ -55,6 +55,12 @@ exports.login = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`User account is blocked`, 400));
   }
 
+   User.setNewLoginTime(user.id, (err, data) => {
+    if (err) {
+      return next(new ErrorResponse(`Something went wrong`, 500));
+    } 
+  });
+
   const accessToken = user.GenerateJWT();
 
   res.status(201).json({ success: true, accessToken });
