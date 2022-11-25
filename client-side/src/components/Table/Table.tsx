@@ -77,6 +77,7 @@ const Table: FC<TableProps> = ({
           }}
           rowKey="_id"
           loading={loading}
+         scroll={{ x: 240 }}
         />
       </Form>
     </ConfigProvider>

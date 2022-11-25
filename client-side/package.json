@@ -2,7 +2,7 @@
   "name": "client-side",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://localhost:5000",
+  "proxy": "https://user-management-systems-4.herokuapp.com/",
   "dependencies": {
     "@ant-design/icons": "^4.8.0",
     "@reduxjs/toolkit": "^1.9.0",
