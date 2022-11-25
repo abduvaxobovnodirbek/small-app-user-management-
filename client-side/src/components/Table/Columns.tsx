@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Popconfirm, Typography } from "antd";
-import { format, formatRelative,formatISO9075 } from "date-fns";
+import { format, formatRelative, formatISO9075 } from "date-fns";
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
@@ -26,6 +26,11 @@ const ColumnData = ({
 }: TableProps): any => {
   const columns = [
     {
+      title: "Id",
+      dataIndex: "_id",
+      editable: true,
+    },
+    {
       title: "Name",
       dataIndex: "name",
       editable: true,
@@ -45,12 +50,12 @@ const ColumnData = ({
     {
       title: "Last Login Time",
       dataIndex: "lastLoginAt",
-      render: (text: any) => format(new Date(text), "hh:mm a (MMM do. yyyy)")
+      render: (text: any) => format(new Date(text), "hh:mm a (MMM do. yyyy)"),
     },
     {
       title: "Registered Time",
       dataIndex: "createdAt",
-      render: (text: any) => format(new Date(text), "hh:mm a (MMM do. yyyy)")
+      render: (text: any) => format(new Date(text), "hh:mm a (MMM do. yyyy)"),
     },
     {
       title: "operation",
