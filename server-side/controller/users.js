@@ -57,3 +57,16 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
     .status(204)
     .json({ success: true, data: "user has successfully been deleted" });
 });
+
+//description    Changing Users Status
+//route   GET /api/v1/users/status/:id
+//access  Private
+exports.changeStatuses = asyncHandler(async (req, res, next) => {
+  const ids = req.params.id.split(",");
+  await User.updateMany(
+    { _id: { $in: ids } },
+    { $set: { status: req.body.status } },
+    { multi: true, upsert: true, new: true }
+  );
+  res.status(204).json({ success: true });
+});

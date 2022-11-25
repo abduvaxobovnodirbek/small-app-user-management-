@@ -4,7 +4,12 @@ import { Form } from "antd";
 import { useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
 
-import { deleteUser, editUser, getUsers } from "../store/reducers/userSlice";
+import {
+  deleteUser,
+  editUser,
+  editUsersStatus,
+  getUsers,
+} from "../store/reducers/userSlice";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import type { UserData } from "../components/Table/model.table";
 import {
@@ -114,6 +119,37 @@ const Users = () => {
       });
   };
 
+  const handleStatuses = (ids: string[], status: boolean): void => {
+    dispatch(editUsersStatus({ ids, status }))
+      .unwrap()
+      .then(() => {
+        successNotification("bottomRight", "user statuses have changed");
+        dispatch(getUsers())
+          .unwrap()
+          .catch((err) => {
+            if (err?.response?.data?.noAccess || err?.response?.data?.blocked) {
+              cookie.remove("accessToken");
+              successNotification(
+                "bottomRight",
+                "your account has been blocked"
+              );
+              navigate("/login");
+            }
+          });
+        setSelectedRowKeys([]);
+      })
+      .catch((err) => {
+        errorNotification(
+          "bottomRight",
+          err?.response?.data?.error || "user statuses not changed "
+        );
+        if (err?.response?.data?.blocked) {
+          cookie.remove("accessToken");
+          navigate("/login");
+        }
+      });
+  };
+
   const handleDelete = (id: string[]) => {
     dispatch(deleteUser({ ids: id } as { ids: string[] }))
       .unwrap()
@@ -155,6 +191,7 @@ const Users = () => {
         form={form}
         cancel={cancel}
         save={save}
+        handleStatuses={handleStatuses}
         handleStatus={handleStatus}
         handleDelete={handleDelete}
         selectedRowKeys={selectedRowKeys}

@@ -6,11 +6,12 @@ export interface TableProps {
   save: (str: string) => void;
   handleStatus: (e: UserData) => void;
   handleDelete: (arr: string[]) => void;
+  handleStatuses: (arr: string[],status:boolean) => void;
   isEditing: (Record: UserData) => any;
   loading: boolean;
   form: any;
   setSelectedRowKeys: React.Dispatch<React.SetStateAction<React.Key[]>>;
-  selectedRowKeys:React.Key[]
+  selectedRowKeys: React.Key[];
 }
 
 export interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {

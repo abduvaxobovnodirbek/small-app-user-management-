@@ -1,10 +1,13 @@
 import { FC } from "react";
 import { Table as TableBlock, ConfigProvider, Form } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
+import { HiLockOpen, HiLockClosed } from "react-icons/hi";
+
 import type { TableRowSelection } from "antd/es/table/interface";
 import type { TableProps } from "./model.table";
 import EditableCell from "./EditableCell";
 import ColumnData from "./Columns";
+import { INTERNAL_SELECTION_ITEM } from "antd/es/table/hooks/useSelection";
 
 const Table: FC<TableProps> = ({
   data,
@@ -13,6 +16,7 @@ const Table: FC<TableProps> = ({
   cancel,
   save,
   form,
+  handleStatuses,
   handleDelete,
   handleStatus,
   isEditing,
@@ -35,6 +39,20 @@ const Table: FC<TableProps> = ({
             onSelect: () => handleDelete(selectedRowKeys as string[]),
           }
         : "SELECT_ALL",
+      selectedRowKeys.length
+        ? {
+            key: "",
+            text: <HiLockClosed style={{ color: "red" }} />,
+            onSelect: () => handleStatuses(selectedRowKeys as string[], false),
+          }
+        : ("" as INTERNAL_SELECTION_ITEM),
+      selectedRowKeys.length
+        ? {
+            key: "",
+            text: <HiLockOpen style={{ color: "red" }} />,
+            onSelect: () => handleStatuses(selectedRowKeys as string[], true),
+          }
+        : ("" as INTERNAL_SELECTION_ITEM),
     ],
   };
 
@@ -63,6 +81,7 @@ const Table: FC<TableProps> = ({
             editingKey,
             cancel,
             save,
+            handleStatuses,
             form,
             handleDelete,
             handleStatus,

@@ -98,6 +98,28 @@ export const editUser = createAsyncThunk<User,Partial<User>,{ rejectValue: any; 
   return rejectWithValue("No such User in the list");
 });
 
+type editUsers = {
+  ids:string[],
+  status:boolean
+}
+
+export const editUsersStatus = createAsyncThunk<string,editUsers,{ rejectValue: any; }>(
+  "user/editUserStatuses", async function (user_details, { rejectWithValue, getState }) {
+     try {
+      
+       const response = await api.put(`api/v1/users/status/${user_details.ids}`,{status:user_details.status});
+ 
+     if (!response.status) {
+       return rejectWithValue("Cannot update user info . Server Error");
+     }
+       await response.data
+      return 'success';
+     } catch (error) {
+       return rejectWithValue(error);
+     }
+   
+ });
+
 
 const userSlice = createSlice({
     name: "user",
@@ -111,6 +133,14 @@ const userSlice = createSlice({
         })
         .addCase(getUsers.fulfilled, (state, action) => {
           state.list = action.payload.data;
+          state.loading = false;
+          state.error = null;
+        })
+        .addCase(editUsersStatus.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(editUsersStatus.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
         })

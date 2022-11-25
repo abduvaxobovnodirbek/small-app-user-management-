@@ -33,6 +33,8 @@ const Login: React.FC = () => {
         return navigate("/");
       })
       .catch((err) => {
+        console.log(err);
+        
         errorNotification(
           "bottomRight",
           err?.response?.data?.error || "internal error"
