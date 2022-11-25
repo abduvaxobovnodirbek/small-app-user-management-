@@ -71,13 +71,11 @@ const Table: FC<TableProps> = ({
             selectedRowKeys,
             setSelectedRowKeys,
           })}
+          pagination={false}
           rowClassName="editable-row"
-          pagination={{
-            onChange: cancel,
-          }}
           rowKey="_id"
           loading={loading}
-         scroll={{ x: 240 }}
+          scroll={{ x: 240 }}
         />
       </Form>
     </ConfigProvider>
